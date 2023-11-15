@@ -1,0 +1,57 @@
+{
+  "name": "pos-master",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/pos-master/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/pos-master",
+        "main": "apps/pos-master/src/main.ts",
+        "tsConfig": "apps/pos-master/tsconfig.app.json",
+        "assets": ["apps/pos-master/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/pos-master/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "pos-master:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "pos-master:build:development"
+        },
+        "production": {
+          "buildTarget": "pos-master:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/pos-master/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/pos-master/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,75 @@
+@import url('../../apps/point-of-sales/src/styles.scss');
+
+.cashier-wrapper {
+  display: flex;
+  margin-top: 24px;
+
+  .product-search-form {
+    flex-grow: 0.3;
+  }
+
+  ::ng-deep mat-card {
+    margin: 4px !important;
+  }
+
+  .form-wrapper {
+    margin-top: 8px;
+  }
+
+  table {
+    margin-top: 8px;
+    max-height: 500px;
+    overflow: scroll;
+  }
+
+  .products {
+    flex-grow: 1;
+
+    ::ng-deep mat-card {
+      margin-bottom: 8px !important;
+    }
+  }
+
+  .input-product-id {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .confirm-transaction-button {
+    height: 100%;
+  }
+
+  .table-wrapper {
+    height: 500px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .total-label {
+    font-size: 100px;
+  }
+
+  .total-wrapper {
+    display: flex;
+
+    h1 {
+      margin: 0px !important;
+    }
+
+    * {
+      flex-grow: 1;
+    }
+
+    button {
+      width: 100%;
+      font-weight: bolder;
+    }
+  }
+
+  .product-search-actions {
+    display: flex;
+    justify-content: center;
+  }
+}

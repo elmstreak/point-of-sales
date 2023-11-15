@@ -1,0 +1,52 @@
+import { storageSync } from '@larscom/ngrx-store-storagesync';
+import {
+  Action,
+  ActionReducer,
+  ActionReducerMap,
+  MetaReducer,
+  createReducer,
+  on,
+} from '@ngrx/store';
+import * as Actions from './pos-data-access.action';
+import { ProductAdminStore } from './pos-data-access.models';
+
+const initialState: ProductAdminStore | any = {
+  user: {},
+  transactions: [],
+  products: [],
+};
+
+const productReducer = createReducer(
+  initialState,
+  on(Actions.initializeStore, (state) => ({
+    ...state,
+  })),
+  on(Actions.addProduct, (state, { product }) => ({
+    ...state,
+    products: [...state.products, product],
+  }))
+);
+
+export function productReducers(state: ProductAdminStore, action: Action) {
+  return productReducer(state, action);
+}
+
+export const reducers: ActionReducerMap<ProductAdminStore> = {
+  products: productReducers,
+} as any;
+
+export function storageSyncReducer(reducer: ActionReducer<ProductAdminStore>) {
+  const metaReducer = storageSync<ProductAdminStore>({
+    features: [
+      {
+        stateKey: 'products',
+        storageForFeature: window.sessionStorage,
+      },
+    ],
+    storage: window.sessionStorage,
+  });
+
+  return metaReducer(reducer);
+}
+
+export const metaReducers: MetaReducer<any>[] = [storageSyncReducer];

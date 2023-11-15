@@ -1,0 +1,31 @@
+{
+  "user": {
+    "credentials": {
+      "username": "admin",
+      "password": "posadmin1234"
+    }
+  },
+  "transactions": [
+    {
+      "id": "ab147d9c-5f80-468a-80d9-45181a06a6ce",
+      "items": [
+        {
+          "id": "asdasd",
+          "quantity": 22,
+          "price": 5.45,
+          "name": "test"
+        }
+      ],
+      "date": "2023-15-11",
+      "amount": 2637.800000000001
+    }
+  ],
+  "products": [
+    {
+      "id": "product-a",
+      "name": "product A",
+      "price": 52.65,
+      "stock": 250
+    }
+  ]
+}

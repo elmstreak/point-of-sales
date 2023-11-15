@@ -1,0 +1,13 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+$primary-color: #33b249;
+
+.primary-color {
+  color: $primary-color;
+}

@@ -1,0 +1,27 @@
+{
+  "name": "pos-feature-shell",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "pos-feature-shell/src",
+  "prefix": "org",
+  "tags": [],
+  "projectType": "library",
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "pos-feature-shell/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "pos-feature-shell/**/*.ts",
+          "pos-feature-shell/**/*.html"
+        ]
+      }
+    }
+  }
+}

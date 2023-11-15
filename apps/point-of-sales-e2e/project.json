@@ -1,0 +1,33 @@
+{
+  "name": "point-of-sales-e2e",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/point-of-sales-e2e/src",
+  "targets": {
+    "e2e": {
+      "executor": "@nx/cypress:cypress",
+      "options": {
+        "cypressConfig": "apps/point-of-sales-e2e/cypress.config.ts",
+        "testingType": "e2e",
+        "devServerTarget": "point-of-sales:serve:development"
+      },
+      "configurations": {
+        "production": {
+          "devServerTarget": "point-of-sales:serve:production"
+        },
+        "ci": {
+          "devServerTarget": "point-of-sales:serve-static"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/point-of-sales-e2e/**/*.{js,ts}"]
+      }
+    }
+  },
+  "tags": [],
+  "implicitDependencies": ["point-of-sales"]
+}
