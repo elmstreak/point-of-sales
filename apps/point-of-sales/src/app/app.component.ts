@@ -3,8 +3,10 @@ import { RouterModule } from '@angular/router';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import {
+  PRODUCT_FACADE_TOKEN,
   PosCashierComponent,
   PosFeatureShellComponent,
+  ProductsFacade,
 } from '@org/pos-feature-shell';
 
 @Component({

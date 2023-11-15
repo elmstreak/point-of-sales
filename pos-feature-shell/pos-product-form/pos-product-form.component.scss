@@ -1,0 +1,20 @@
+table {
+  margin-top: 8px;
+}
+
+mat-card {
+  height: 600px;
+  margin: 8px;
+}
+
+.products-wrapper {
+  display: flex;
+
+  .add-products {
+    flex-grow: 0.2;
+  }
+
+  .products-list {
+    flex-grow: 1;
+  }
+}

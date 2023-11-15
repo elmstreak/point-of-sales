@@ -51,13 +51,7 @@ export class PosCashierComponent {
   valueInTotal = signal<number>(0);
   displayedColumns: string[] = ['id', 'name', 'price', 'quantity'];
 
-  productsFacade = inject(PRODUCT_FACADE_TOKEN);
-
-  constructor(private formBuilder: FormBuilder) {
-    this.productsFacade.products$.subscribe((details: any) => {
-      console.log(details);
-    });
-  }
+  constructor(private formBuilder: FormBuilder) {}
 
   generateTotal() {
     let total = 0;

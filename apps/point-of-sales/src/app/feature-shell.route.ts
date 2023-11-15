@@ -13,12 +13,7 @@ export const lazyLoadedRoutes: Route[] = [
   {
     path: '',
     component: PosFeatureShellComponent,
-    providers: [
-      {
-        provide: PRODUCT_FACADE_TOKEN,
-        useExisting: ProductsFacade,
-      },
-    ],
+    providers: [ProductsFacade],
   },
   {
     path: 'login',
