@@ -8,3 +8,8 @@ export const getProducts = createSelector(
   selectorProductState,
   (state: ProductAdminStore) => state.products
 );
+
+export const getStore = createSelector(
+  selectorProductState,
+  (state: ProductAdminStore) => state
+);

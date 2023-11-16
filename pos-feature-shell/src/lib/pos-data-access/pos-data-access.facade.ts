@@ -12,13 +12,14 @@ export const PRODUCT_FACADE_TOKEN = new InjectionToken<any>(
   providedIn: 'any',
 })
 export class ProductsFacade {
+  store$ = this.store.pipe(select(Selector.getStore));
   products$ = this.store.pipe(select(Selector.getProducts));
 
   addProduct(product: Product): any {
     return this.store.dispatch(Actions.addProduct({ product }));
   }
-  initializeApp(): any {
-    return this.store.dispatch(Actions.initializeStore());
+  initializeApp(initialState: any): any {
+    return this.store.dispatch(Actions.initializeStore({ initialState }));
   }
   constructor(private store: Store) {}
 }

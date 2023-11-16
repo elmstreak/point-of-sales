@@ -1,9 +1,19 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'any',
 })
 export class PosDataAccessService {
+  apiUrl = 'http://localhost:5000';
 
-  constructor() { }
+  constructor(private http: HttpClient) {}
+
+  updateProduct(payload: any) {
+    return this.http.post(`${this.apiUrl}/product/update/`, payload);
+  }
+
+  getDataFromFile() {
+    return this.http.get(`${this.apiUrl}/product/store/`);
+  }
 }

@@ -9,6 +9,7 @@ import {
 } from '@ngrx/store';
 import * as Actions from './pos-data-access.action';
 import { ProductAdminStore } from './pos-data-access.models';
+import { size } from 'lodash';
 
 const initialState: ProductAdminStore | any = {
   user: {},
@@ -18,13 +19,22 @@ const initialState: ProductAdminStore | any = {
 
 const productReducer = createReducer(
   initialState,
-  on(Actions.initializeStore, (state) => ({
-    ...state,
+  on(Actions.initializeStore, (state, { initialState }) => ({
+    ...initialState,
   })),
-  on(Actions.addProduct, (state, { product }) => ({
-    ...state,
-    products: [...state.products, product],
-  }))
+  on(Actions.addProduct, (state, { product }) => {
+    if (size(state?.products)) {
+      return {
+        ...state,
+        products: [...state?.products, product],
+      };
+    } else {
+      return {
+        ...state,
+        products: [product],
+      };
+    }
+  })
 );
 
 export function productReducers(state: ProductAdminStore, action: Action) {

@@ -1,21 +1,27 @@
-table {
-  margin-top: 8px;
-}
-
-mat-card {
-  height: 600px;
-  margin: 8px;
-}
-
 .products-wrapper {
   display: flex;
 
-  .add-products {
-    flex-grow: 0.2;
-  }
-
   .products-list {
+    mat-card {
+      margin-top: 8px;
+      max-height: 800px;
+      overflow-y: scroll;
+    }
     flex-grow: 1;
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.search-field {
+  margin-top: 24px !important;
+}
+
+.add-products {
+  mat-card-content {
+    margin-top: 16px;
   }
 }
 

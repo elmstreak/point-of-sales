@@ -1,0 +1,57 @@
+{
+  "name": "quanta-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/quanta-api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/quanta-api",
+        "main": "apps/quanta-api/src/main.ts",
+        "tsConfig": "apps/quanta-api/tsconfig.app.json",
+        "assets": ["apps/quanta-api/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/quanta-api/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "quanta-api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "quanta-api:build:development"
+        },
+        "production": {
+          "buildTarget": "quanta-api:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/quanta-api/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/quanta-api/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

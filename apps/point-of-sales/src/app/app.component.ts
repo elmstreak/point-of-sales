@@ -1,3 +1,4 @@
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { EffectsModule } from '@ngrx/effects';
@@ -8,6 +9,8 @@ import {
   PosFeatureShellComponent,
   ProductsFacade,
 } from '@org/pos-feature-shell';
+import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
+import { take } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -17,6 +20,7 @@ import {
     EffectsModule,
     PosFeatureShellComponent,
     PosCashierComponent,
+    HttpClientModule,
   ],
   selector: 'org-root',
   templateUrl: './app.component.html',
@@ -25,5 +29,32 @@ import {
 export class AppComponent {
   title = 'COMPANY NAME POINT-OF-SALES';
 
-  constructor() {}
+  constructor(
+    private productsFacade: ProductsFacade,
+    private posService: PosDataAccessService
+  ) {
+    this.posService
+      .getDataFromFile()
+      .pipe(take(1))
+      .subscribe({
+        next: (details: any) => {
+          if (details?.error) {
+            this.productsFacade.initializeApp({
+              user: {},
+              transactions: [],
+              products: [],
+            });
+            this.posService
+              .updateProduct({
+                user: {},
+                transactions: [],
+                products: [],
+              })
+              .subscribe(() => {});
+          } else {
+            this.productsFacade.initializeApp({ ...details.data });
+          }
+        },
+      });
+  }
 }
