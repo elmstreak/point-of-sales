@@ -2,7 +2,7 @@
   <div class="product-search-form">
     <mat-card appearance="outlined">
       <mat-card-header>
-        <mat-card-subtitle> Add a Product </mat-card-subtitle>
+        <mat-card-subtitle> Add a new item on cart </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <form [formGroup]="cashierFormGroup">
@@ -44,13 +44,64 @@
               color="outlined"
               mat-stroked-button
             >
-              Add Product
+              Add Item
             </button>
           </div>
         </form>
       </mat-card-content>
     </mat-card>
   </div>
+
+  <ng-template #confirmDialog>
+    <h1 mat-dialog-title>Complete your Transaction</h1>
+    <mat-dialog-content>
+      <div class="confirm-dialog-content">
+        <h4>Amount:</h4>
+        <h1 [style]="{ fontWeight: 'bolder', fontSize: '64px' }">
+          <span [style]="{ fontSize: '48px' }">PHP</span>
+          {{ this.valueInTotal() | number : '.2' }}
+        </h1>
+      </div>
+      <div class="confirm-dialog-content">
+        <h4>Change:</h4>
+        <h1>
+          <span [style]="{ fontSize: '24px' }">PHP</span>{{ ' ' }}
+          {{ this.changeAmount() | number : '.2' }}
+        </h1>
+      </div>
+      <div class="cash-form">
+        <h4>Cash:</h4>
+        <form [formGroup]="cashFormGroup">
+          <mat-form-field [style]="{ width: '100% !important' }">
+            <mat-label>Cash</mat-label>
+            <input matInput formControlName="cash" type="text" />
+            <button
+              [style]="{ marginRight: '4px' }"
+              matSuffix
+              mat-stroked-button
+              (click)="onCashChange()"
+            >
+              Accept
+            </button>
+          </mat-form-field>
+        </form>
+      </div>
+    </mat-dialog-content>
+    <mat-divider></mat-divider>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button
+        [disabled]="this.changeAmount() === 0 || this.changeAmount() > 0"
+        mat-stroked-button
+        color="warn"
+        (click)="confirmTransaction()"
+        [mat-dialog-close]="true"
+        cdkFocusInitial
+      >
+        <strong>Confirm</strong>
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
 
   <div class="products">
     <mat-card>
@@ -67,7 +118,7 @@
           </div>
           <div *ngIf="valueInTotal() > 0">
             <button
-              (click)="confirmTransaction()"
+              (click)="checkConfirmTransaction()"
               class="confirm-transaction-button"
               color="primary"
               mat-stroked-button
@@ -83,43 +134,55 @@
         <mat-card-subtitle> Items </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-        <div class="table-wrapper">
-          <table
-            mat-table
-            [dataSource]="productList()"
-            class="mat-elevation-z8"
-          >
-            <!--- Note that these columns can be defined in any order.
-                  The actual rendered columns are set as a property on the row definition" -->
+        <ng-container *ngIf="productList().length !== 0; else emptyRecord">
+          <div class="table-wrapper">
+            <table
+              mat-table
+              [dataSource]="productList()"
+              class="mat-elevation-z8"
+            >
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>
+                  <h3>ID</h3>
+                </th>
+                <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+              </ng-container>
 
-            <!-- Position Column -->
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>ID</th>
-              <td mat-cell *matCellDef="let element">{{ element.id }}</td>
-            </ng-container>
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>
+                  <h3>Name</h3>
+                </th>
+                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+              </ng-container>
 
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-            </ng-container>
+              <ng-container matColumnDef="price">
+                <th mat-header-cell *matHeaderCellDef>
+                  <h3>Price</h3>
+                </th>
+                <td mat-cell *matCellDef="let element">{{ element.price }}</td>
+              </ng-container>
 
-            <!-- Weight Column -->
-            <ng-container matColumnDef="price">
-              <th mat-header-cell *matHeaderCellDef>Price</th>
-              <td mat-cell *matCellDef="let element">{{ element.price }}</td>
-            </ng-container>
+              <ng-container matColumnDef="quantity">
+                <th mat-header-cell *matHeaderCellDef>
+                  <h3>Quantity</h3>
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  {{ element.quantity }}
+                </td>
+              </ng-container>
 
-            <!-- Symbol Column -->
-            <ng-container matColumnDef="quantity">
-              <th mat-header-cell *matHeaderCellDef>Quantity</th>
-              <td mat-cell *matCellDef="let element">{{ element.quantity }}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-          </table>
-        </div>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+        </ng-container>
+        <ng-template #emptyRecord>
+          <div class="table-wrapper" [style]="{ textAlign: 'center' }">
+            <h4 [style]="{ color: 'gray', marginTop: '64px' }">
+              You have no items in cart.
+            </h4>
+          </div>
+        </ng-template>
       </mat-card-content>
     </mat-card>
   </div>

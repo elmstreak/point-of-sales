@@ -51,6 +51,19 @@
     font-size: 100px;
   }
 
+  .confirm-dialog-content {
+    display: flex;
+    justify-content: center;
+  }
+
+  ::ng-deep .mat-mdc-form-field {
+    display: flex !important;
+  }
+
+  .cash-form {
+    width: 100%;
+  }
+
   .total-wrapper {
     display: flex;
 
@@ -71,5 +84,9 @@
   .product-search-actions {
     display: flex;
     justify-content: center;
+
+    * {
+      flex-grow: 1;
+    }
   }
 }

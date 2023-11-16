@@ -18,3 +18,12 @@ mat-card {
     flex-grow: 1;
   }
 }
+
+.product-search-actions {
+  display: flex;
+  justify-content: center;
+
+  * {
+    flex-grow: 1;
+  }
+}

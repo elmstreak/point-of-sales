@@ -7,26 +7,19 @@
       <mat-card-content>
         <form [formGroup]="productsFormGroup">
           <div class="form-wrapper">
-            <mat-form-field>
-              <mat-label> Product ID </mat-label>
-              <div class="input-product-id">
-                <input
-                  formControlName="productId"
-                  matInput
-                  type="text"
-                  autocomplete="off"
-                />
-              </div>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-label> Quantity </mat-label>
-              <input
-                matInput
-                formControlName="quantity"
-                autocomplete="off"
-                type="number"
-              />
-            </mat-form-field>
+            <ng-container *ngFor="let control of formControls">
+              <mat-form-field>
+                <mat-label> {{ control.placeholder }} </mat-label>
+                <div class="input-product-id">
+                  <input
+                    [formControlName]="control.id"
+                    matInput
+                    [type]="control.type"
+                    autocomplete="off"
+                  />
+                </div>
+              </mat-form-field>
+            </ng-container>
           </div>
           <div class="product-search-actions">
             <button type="submit" color="outlined" mat-stroked-button>
