@@ -13,16 +13,20 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ProductsFacade } from '@org/pos-feature-shell';
+import { map, some } from 'lodash';
 import * as moment from 'moment';
+import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
+import {
+  Product,
+  ProductCartDetails,
+} from 'pos-feature-shell/src/lib/pos-data-access/pos-data-access.models';
+import { Observable, of, switchMap, take } from 'rxjs';
 import * as uuid from 'uuid';
-
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-}
 
 @Component({
   selector: 'org-pos-cashier',
@@ -38,12 +42,18 @@ export interface Product {
     MatTableModule,
     MatDialogModule,
     MatIconModule,
+    MatToolbarModule,
+    MatSnackBarModule,
+    MatTooltipModule,
   ],
   encapsulation: ViewEncapsulation.Emulated,
   templateUrl: './pos-cashier.component.html',
   styleUrls: ['./pos-cashier.component.scss'],
 })
 export class PosCashierComponent {
+  @ViewChild('confirmDialog') confirmDialog: any;
+  @ViewChild('enterProduct') enterProductDialog: any;
+
   cashierFormGroup = this.formBuilder.group(
     {
       productId: new FormControl(null, [Validators.required]),
@@ -54,14 +64,23 @@ export class PosCashierComponent {
   cashFormGroup = this.formBuilder.group({
     cash: new FormControl(null, [Validators.required]),
   });
-  changeAmount = signal(0);
-  productList = signal<Product[]>([]);
-  valueInTotal = signal<number>(0);
-  displayedColumns: string[] = ['id', 'name', 'price', 'quantity'];
-  @ViewChild('confirmDialog') confirmDialog: any;
 
-  constructor(private formBuilder: FormBuilder, private dialog: MatDialog) {
-    console.log(this.productList().length);
+  changeAmount = signal(0);
+  productList = signal<ProductCartDetails[]>([]);
+  valueInTotal = signal<number>(0);
+  productError = signal('');
+  displayedColumns: string[] = ['id', 'name', 'price', 'quantity'];
+  enterProductDialogRef: any;
+  products$ = new Observable<any>();
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private dialog: MatDialog,
+    private productsFacade: ProductsFacade,
+    private posService: PosDataAccessService,
+    private snackbar: MatSnackBar
+  ) {
+    this.products$ = this.productsFacade.products$;
   }
 
   generateTotal() {
@@ -74,8 +93,14 @@ export class PosCashierComponent {
 
   checkConfirmTransaction() {
     this.dialog.open(this.confirmDialog, {
+      width: '600px',
+      height: '500px',
+    });
+  }
+
+  showEnterProductsDialog() {
+    this.enterProductDialogRef = this.dialog.open(this.enterProductDialog, {
       width: '500px',
-      height: '600px',
     });
   }
 
@@ -86,21 +111,70 @@ export class PosCashierComponent {
   }
 
   confirmTransaction() {
-    const items = this.productList();
+    const items: any = this.productList();
     const cashAmount = this.cashFormGroup.value?.['cash'];
+
     const payload = {
       id: uuid.v4(),
       items,
-      date: moment(new Date()).format('YYYY-DD-MM'),
+      date: moment(new Date()).format('YYYY-MM-DD'),
       amount: Number(this.valueInTotal()),
       cashAmount: Number(cashAmount),
       change: Number(this.changeAmount()),
     };
 
-    this.resetPageDetails();
+    this.productsFacade.store$
+      .pipe(
+        take(1),
+        switchMap((details: any) => {
+          const transactions = [...details?.transactions, payload];
+          const existingProducts = details?.products;
+          const updatedProductDetails = map(items, (item: any) => {
+            const filteredProduct = existingProducts
+              ?.filter((product: any) => product?.id === item.id)
+              .shift();
+            return {
+              ...filteredProduct,
+              stock: filteredProduct.stock - item.quantity,
+            };
+          });
 
-    console.log(payload);
+          // const updatedProductList = map(existingProducts, (product) => {
+          //   const updatedProduct = updatedProductDetails
+          //     ?.filter((details: any) => details?.id === product?.id)
+          //     ?.shift();
+
+          //   if (updatedProduct) {
+          //     return updatedProduct;
+          //   }
+
+          //   return product;
+          // });
+
+          const updatedProducts = {
+            ...details,
+            products: updatedProductDetails,
+            transactions: transactions,
+          };
+
+          this.productsFacade.updateProductStore(updatedProducts);
+          return of(updatedProducts);
+        }),
+        switchMap((details) => {
+          return this.posService.updateJSON(details);
+        })
+      )
+      .subscribe((details: any) => {
+        const message = details['response'];
+        if (message === 'OK') {
+          this.snackbar.open('Transaction complete!', 'Close');
+        }
+      });
+
+    this.resetPageDetails();
   }
+
+  checkProductExistence() {}
 
   resetPageDetails() {
     this.productList.set([]);
@@ -115,16 +189,73 @@ export class PosCashierComponent {
     const isValidForm = formStatus === 'VALID';
 
     if (isValidForm) {
-      const product: Product = {
-        id: formValue.productId || '',
-        quantity: formValue.quantity || 0,
-        price: 5.45,
-        name: 'test',
-      };
-      this.productList.set([...this.productList(), product]);
+      this.products$.subscribe((products: any) => {
+        const productDetails = products
+          ?.filter(
+            (product: any) => product?.id === formValue.productId.toUpperCase()
+          )
+          .shift();
+        const isProductExist = some(products, {
+          id: formValue.productId.toUpperCase(),
+        });
+        const isStockEnough = productDetails?.stock >= formValue.quantity;
+
+        if (isProductExist && isStockEnough) {
+          //check if item already exist then increment quantity
+          const isItemExist = some(
+            this.productList(),
+            (details: any) => details.id === formValue.productId.toUpperCase()
+          );
+
+          if (isItemExist) {
+            const duplicateProductEntryDetails: Product | any =
+              this.productList()
+                .filter(
+                  (details: any) =>
+                    details?.id === formValue.productId.toUpperCase()
+                )
+                .shift();
+            const updatedDuplicateProductEntryDetails = {
+              ...duplicateProductEntryDetails,
+              quantity:
+                duplicateProductEntryDetails?.quantity + formValue.quantity,
+            };
+            const productListWithNoDuplicate = this.productList().filter(
+              (details: any) =>
+                details?.id !== formValue.productId.toUpperCase()
+            );
+
+            this.productList.set([
+              ...productListWithNoDuplicate,
+              updatedDuplicateProductEntryDetails,
+            ]);
+          } else {
+            // create a new entry
+            const cartItemDetails: ProductCartDetails = {
+              id: formValue.productId.toUpperCase() || '',
+              quantity: formValue.quantity || 0,
+              price: productDetails?.price,
+              name: productDetails?.name,
+            };
+
+            this.productList.set([...this.productList(), cartItemDetails]);
+          }
+
+          // update product list and reset form
+
+          this.cashierFormGroup.reset();
+          this.productError.set('');
+          this.enterProductDialogRef.close();
+        } else {
+          this.productError.set(
+            !isStockEnough && isProductExist
+              ? `You only have ${productDetails?.stock} remaining stock left.`
+              : 'Product ID does not exist'
+          );
+        }
+      });
     }
 
     this.generateTotal();
-    console.log(this.productList());
   }
 }

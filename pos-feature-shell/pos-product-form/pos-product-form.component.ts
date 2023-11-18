@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -13,14 +13,21 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { ProductsFacade, addProduct } from '@org/pos-feature-shell';
-import { each } from 'lodash';
+import { each, map, some, update } from 'lodash';
 import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
-import { filter, of, switchMap, take } from 'rxjs';
-import { PRODUCT_FORM_CONTROLS } from './form-controls.config';
+import { combineLatest, filter, of, switchMap, take } from 'rxjs';
+import {
+  PRODUCT_DELETE_FORM_CONTROLS,
+  PRODUCT_FORM_CONTROLS,
+  PRODUCT_UPDATE_STOCK_FORM_CONTROLS,
+} from './form-controls.config';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { ProductAdminStore } from 'pos-feature-shell/src/lib/pos-data-access/pos-data-access.models';
+import * as moment from 'moment';
 
 @Component({
   selector: 'org-pos-product-form',
@@ -38,6 +45,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
     MatTooltipModule,
     MatToolbarModule,
     MatDialogModule,
+    MatDividerModule,
   ],
   providers: [PosDataAccessService],
   templateUrl: './pos-product-form.component.html',
@@ -45,17 +53,29 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 })
 export class PosProductFormComponent {
   @ViewChild('addProduct') addProductDialog: any;
+  @ViewChild('deleteProduct') deleteProductDialog: any;
+  @ViewChild('updateStock') updateStockDialog: any;
 
-  filterFormControl = new FormControl('');
-
-  dialogSize = { width: '350px', height: 'auto' };
-  products$: any;
-  displayedColumns: string[] = ['id', 'name', 'stock', 'price'];
   formControls = PRODUCT_FORM_CONTROLS;
+  deleteFormControls = PRODUCT_DELETE_FORM_CONTROLS;
+  updateStockFormControls = PRODUCT_UPDATE_STOCK_FORM_CONTROLS;
+  productsFormGroup = this.formBuilder.group({});
+  updateStockFormGroup = this.formBuilder.group({});
+  filterFormControl = new FormControl('');
+  deleteFormControl = new FormControl('', [Validators.required]);
+  existingProductList: any = [];
+
+  products$: any;
+  displayedColumns: string[] = ['id', 'name', 'stock', 'price', 'date_created'];
+  dialogSize = { width: '350px', height: 'auto' };
+
   dataSource: any = [];
   databaseCopy$: any;
-  addDialogRef: any;
-  productsFormGroup = this.formBuilder.group({});
+  dialogRef: any;
+  updatedStoreDataContainer: any = {};
+  updatedStoreDataCopy: ProductAdminStore | any = signal({});
+  productStockError = signal(false);
+  isItemExistError = signal(false);
 
   constructor(
     private productsFacade: ProductsFacade,
@@ -63,13 +83,16 @@ export class PosProductFormComponent {
     private posService: PosDataAccessService,
     private matDialog: MatDialog
   ) {
-    this.products$ = this.productsFacade.products$;
+    this.productsFacade.products$.subscribe((products) => {
+      this.products$ = of(products);
+      this.existingProductList = products;
+    });
     this.filterFormControl.valueChanges.subscribe((filterValue: any) => {
       if (filterValue) {
         this.products$ = this.productsFacade.products$.pipe(
           switchMap((products: any) => {
             const filteredProducts = products.filter((product: any) =>
-              product?.id?.includes(filterValue)
+              product?.id?.includes(filterValue.toUpperCase())
             );
             return of(filteredProducts);
           })
@@ -85,26 +108,148 @@ export class PosProductFormComponent {
     const status: any = this.productsFormGroup.status;
     const payload: any = this.productsFormGroup.value;
 
-    if (status === 'VALID') {
+    const isProductExistAlready = some(
+      this.existingProductList,
+      (details: any) => details.id === payload.product_id.toUpperCase()
+    );
+
+    if (status === 'VALID' && !isProductExistAlready) {
       this.productsFacade.addProduct({
-        id: payload.product_id,
+        id: payload.product_id.toUpperCase(),
         stock: payload.product_stock,
-        name: payload.product_name,
+        name: payload.product_name.toUpperCase(),
         price: payload.product_price,
+        date_created: moment(new Date()).format('YYYY-MM-DD'),
       });
 
       this.updateDataOnFile();
       this.productsFormGroup.reset();
-      this.addDialogRef.close();
+      this.isItemExistError.set(false);
+      this.dialogRef.close();
+    }
+
+    if (isProductExistAlready) {
+      this.isItemExistError.set(true);
     }
   }
 
   updateDataOnFile() {
-    this.productsFacade.store$.pipe(take(1)).subscribe((storeData: any) => {
-      this.posService.updateProduct(storeData).subscribe((details) => {
-        console.log(details);
+    this.productsFacade.store$
+      .pipe(
+        switchMap((storeData: any) => {
+          return this.posService.updateJSON(storeData);
+        })
+      )
+      .subscribe((updateProductResponse: any) => {
+        console.log(updateProductResponse);
       });
-    });
+  }
+
+  deleteProductId() {
+    const isDeleteFormValid = this.deleteFormControl.valid;
+    const productId = this.deleteFormControl.value?.toUpperCase();
+
+    if (isDeleteFormValid) {
+      this.updateDeleteProductFromStore(productId);
+      this.dialogRef.close();
+    }
+  }
+
+  updateProductStock() {
+    const isFormValid = this.updateStockFormGroup.valid;
+    const formValue: { product_id: string; stock: number } | any =
+      this.updateStockFormGroup.value;
+
+    if (isFormValid) {
+      this.productsFacade.store$
+        .pipe(
+          take(1),
+          switchMap((storeData: any) => {
+            const products = storeData?.products || [];
+            const specificProduct = products
+              ?.filter(
+                (details: any) =>
+                  details.id === formValue.product_id.toUpperCase()
+              )
+              .shift();
+
+            if (specificProduct?.id) {
+              const updatedProducts = map(products, (product: any) => {
+                if (product.id === formValue.product_id.toUpperCase()) {
+                  return {
+                    ...product,
+                    stock: Number(product.stock) + Number(formValue.stock),
+                  };
+                }
+
+                return product;
+              });
+              const updatedStoreData = {
+                ...storeData,
+                products: updatedProducts,
+              };
+              this.updatedStoreDataCopy.set(updatedStoreData);
+              return of(updatedStoreData);
+            }
+
+            return of(false);
+          }),
+          switchMap((updatedStoreData: any) => {
+            if (updatedStoreData?.products) {
+              this.productsFacade.updateProductStore(updatedStoreData);
+              return this.posService.updateJSON(updatedStoreData);
+            }
+
+            return of(false);
+          })
+        )
+        .subscribe((response: any) => {
+          if (!response) {
+            this.productStockError.set(true);
+          } else {
+            this.updateStockFormGroup.reset();
+            this.productStockError.set(false);
+            this.dialogRef.close();
+          }
+        });
+    }
+  }
+
+  updateDeleteProductFromStore(productId: any) {
+    this.productsFacade.store$
+      .pipe(
+        switchMap((storeData: any) => {
+          console.log(storeData);
+          const productDetails = storeData?.products
+            ?.filter((product: any) => product?.id === productId)
+            .shift();
+
+          const filteredProducts = storeData?.products?.filter(
+            (product: any) => product?.id !== productId
+          );
+
+          if (productDetails) {
+            return of({
+              ...storeData,
+              products: filteredProducts,
+            });
+          }
+
+          return of(false);
+        }),
+        switchMap((updatedStoreData: any) => {
+          if (updatedStoreData?.products) {
+            this.updatedStoreDataContainer = updatedStoreData;
+            this.productsFacade.updateProductStore(updatedStoreData);
+            return this.posService.updateJSON(updatedStoreData);
+          }
+
+          return of(false);
+        })
+      )
+      .subscribe((data: any) => {
+        console.log(data);
+      });
   }
 
   buildControls() {
@@ -114,12 +259,32 @@ export class PosProductFormComponent {
         this.formBuilder.control(null, [Validators.required])
       );
     });
+
+    each(this.updateStockFormControls, (details) => {
+      this.updateStockFormGroup.addControl(
+        details.id,
+        this.formBuilder.control(null, [Validators.required])
+      );
+    });
   }
 
   // dialog functions
-
   showAddProductForm() {
-    this.addDialogRef = this.matDialog.open(this.addProductDialog, {
+    this.dialogRef = this.matDialog.open(this.addProductDialog, {
+      height: this.dialogSize.height,
+      width: this.dialogSize.width,
+    });
+  }
+
+  showDeleteProductForm() {
+    this.dialogRef = this.matDialog.open(this.deleteProductDialog, {
+      height: this.dialogSize.height,
+      width: this.dialogSize.width,
+    });
+  }
+
+  showUpdateStockForm() {
+    this.dialogRef = this.matDialog.open(this.updateStockDialog, {
       height: this.dialogSize.height,
       width: this.dialogSize.width,
     });

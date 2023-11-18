@@ -1,0 +1,11 @@
+::ng-deep mat-footer-row,
+mat-header-row,
+mat-row {
+  border-bottom-width: 10px;
+}
+
+.sales-wrapper {
+  display: grid;
+  grid-template-columns: 10fr 2fr;
+  grid-gap: 4px;
+}

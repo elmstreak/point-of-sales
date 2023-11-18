@@ -27,4 +27,8 @@ export const lazyLoadedRoutes: Route[] = [
     path: 'stocks',
     component: PosStocksComponent,
   },
+  {
+    path: 'sales/:date',
+    component: PosStocksComponent,
+  },
 ];

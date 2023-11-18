@@ -21,6 +21,7 @@ export interface Product {
   stock: number;
   price: number;
   name: string;
+  date_created?: string;
 }
 
 export interface Transaction {

@@ -1,15 +1,22 @@
 @import url('../../apps/point-of-sales/src/styles.scss');
 
+.spacer {
+  flex: 1;
+}
+
+::ng-deep .mat-mdc-form-field-error {
+  font-size: 12px;
+}
+
 .cashier-wrapper {
   display: flex;
-  margin-top: 24px;
 
   .product-search-form {
     flex-grow: 0.3;
   }
 
   ::ng-deep mat-card {
-    margin: 4px !important;
+    margin: 8px;
   }
 
   .form-wrapper {
@@ -18,12 +25,13 @@
 
   table {
     margin-top: 8px;
-    max-height: 500px;
     overflow: scroll;
   }
 
   .products {
-    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    width: 100%;
 
     ::ng-deep mat-card {
       margin-bottom: 8px !important;
@@ -40,7 +48,7 @@
   }
 
   .table-wrapper {
-    height: 500px;
+    max-height: 400px;
     overflow-y: scroll;
     overflow-x: hidden;
     padding-left: 8px;
@@ -81,12 +89,19 @@
     }
   }
 
-  .product-search-actions {
-    display: flex;
-    justify-content: center;
+  :host {
+    .product-search-actions {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
 
-    * {
-      flex-grow: 1;
+      button {
+        flex-grow: 1;
+      }
+
+      * {
+        flex-grow: 1;
+      }
     }
   }
 }

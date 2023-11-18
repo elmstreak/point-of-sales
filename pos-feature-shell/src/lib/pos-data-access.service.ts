@@ -9,7 +9,7 @@ export class PosDataAccessService {
 
   constructor(private http: HttpClient) {}
 
-  updateProduct(payload: any) {
+  updateJSON(payload: any) {
     return this.http.post(`${this.apiUrl}/product/update/`, payload);
   }
 

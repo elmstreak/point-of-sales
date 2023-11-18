@@ -10,7 +10,7 @@ import {
   ProductsFacade,
 } from '@org/pos-feature-shell';
 import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
-import { take } from 'rxjs';
+import { of, switchMap, take } from 'rxjs';
 
 @Component({
   standalone: true,
@@ -35,26 +35,28 @@ export class AppComponent {
   ) {
     this.posService
       .getDataFromFile()
-      .pipe(take(1))
-      .subscribe({
-        next: (details: any) => {
+      .pipe(
+        take(1),
+        switchMap((details: any) => {
           if (details?.error) {
             this.productsFacade.initializeApp({
               user: {},
               transactions: [],
               products: [],
             });
-            this.posService
-              .updateProduct({
-                user: {},
-                transactions: [],
-                products: [],
-              })
-              .subscribe(() => {});
+            return this.posService.updateJSON({
+              user: {},
+              transactions: [],
+              products: [],
+            });
           } else {
             this.productsFacade.initializeApp({ ...details.data });
+            return of(true);
           }
-        },
+        })
+      )
+      .subscribe({
+        next: (details: any) => {},
       });
   }
 }

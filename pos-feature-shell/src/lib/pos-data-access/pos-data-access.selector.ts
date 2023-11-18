@@ -9,6 +9,11 @@ export const getProducts = createSelector(
   (state: ProductAdminStore) => state.products
 );
 
+export const getTransactions = createSelector(
+  selectorProductState,
+  (state: ProductAdminStore) => state.transactions
+);
+
 export const getStore = createSelector(
   selectorProductState,
   (state: ProductAdminStore) => state

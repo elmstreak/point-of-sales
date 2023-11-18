@@ -1,1 +1,248 @@
-<p>pos-sales works!</p>
+<div>
+  <mat-toolbar [style]="{ height: '80px' }">
+    <form [formGroup]="searchFormGroup" [style]="{ flexGrow: 1 }">
+      @for (control of formControls; track control) {
+      <mat-form-field
+        *ngIf="control.type === 'text'"
+        class="search-field"
+        appearance="outline"
+        [style]="{ marginTop: '24px', marginRight: '8px' }"
+      >
+        <input
+          [placeholder]="control.placeholder"
+          [formControlName]="control.id"
+          [required]="control.required"
+          matInput
+          type="text"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="outline" *ngIf="control.type === 'dropdown'">
+        <mat-select
+          [formControlName]="control.id"
+          [required]="control.required"
+          placeholder="Filter Type"
+        >
+          @for (filterType of control.options; track filterType) {
+          <mat-option [value]="filterType.value">{{
+            filterType.label
+          }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      }
+      <button
+        #searchButton
+        type="submit"
+        (click)="handleSearchFilter()"
+        [style]="{ height: '56px', marginTop: '2px', marginLeft: '8px' }"
+        color="primary"
+        mat-stroked-button
+      >
+        Search
+      </button>
+      <button
+        [disabled]="!isFilterOn()"
+        #searchButton
+        type="reset"
+        (click)="clearFilters()"
+        [style]="{ height: '56px', marginTop: '2px', marginLeft: '8px' }"
+        color="accent"
+        mat-stroked-button
+      >
+        Clear Filter
+      </button>
+    </form>
+  </mat-toolbar>
+</div>
+<div class="sales-wrapper">
+  <mat-card [style]="{ height: '600px' }">
+    <mat-card-content>
+      <div class="table-wrapper">
+        <table [dataSource]="transactions$" mat-table class="table">
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>
+              <strong>Transaction Date</strong>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.date }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>
+              <strong>Sale Amount</strong>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              PHP {{ element.amount | number : '.2' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="cashAmount">
+            <th mat-header-cell *matHeaderCellDef>
+              <strong>Cash Payment</strong>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              PHP {{ element.cashAmount | number : '.2' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="change">
+            <th mat-header-cell *matHeaderCellDef>
+              <strong>Change Amount</strong>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              PHP {{ element.change | number : '.2' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="items">
+            <th mat-header-cell *matHeaderCellDef>
+              <strong>Sold Items</strong>
+            </th>
+            <td mat-cell *matCellDef="let element">
+              <button
+                mat-stroked-button
+                (click)="showItemsDialog(element.items)"
+              >
+                <mat-icon>remove_red_eye</mat-icon> Show
+              </button>
+
+              <ng-template #itemsDialog let-data>
+                <div mat-dialog-content [style]="{ padding: '16px' }">
+                  <table [dataSource]="data.items" mat-table>
+                    <ng-container matColumnDef="id">
+                      <th mat-header-cell *matHeaderCellDef>
+                        <strong>ID</strong>
+                      </th>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.id }}
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="name">
+                      <th mat-header-cell *matHeaderCellDef>
+                        <strong>Name</strong>
+                      </th>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.name }}
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="price">
+                      <th mat-header-cell *matHeaderCellDef>
+                        <strong>Price</strong>
+                      </th>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.price }}
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="quantity">
+                      <th mat-header-cell *matHeaderCellDef>
+                        <strong>Quantity</strong>
+                      </th>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.quantity }}
+                      </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="salesItemColumns"></tr>
+                    <tr
+                      mat-row
+                      *matRowDef="let row; columns: salesItemColumns"
+                    ></tr>
+                  </table>
+                </div>
+              </ng-template>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>
+              <strong>ID</strong>
+            </th>
+            <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+          <div *ngIf="transactions$ | async as transaction">
+            <span *ngIf="transaction.length === 0">No records found.</span>
+          </div>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  <mat-card [style]="{ height: '170px' }">
+    <mat-card-header>
+      <mat-card-subtitle> Check your income </mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <form>
+        <mat-form-field [style]="{ width: '100%' }">
+          <mat-label>Month and Year</mat-label>
+          <input
+            matInput
+            [matDatepicker]="dp"
+            [formControl]="monthlyIncomeDateControl"
+          />
+          <mat-datepicker-toggle
+            matIconSuffix
+            [for]="dp"
+          ></mat-datepicker-toggle>
+          <mat-datepicker
+            #dp
+            startView="multi-year"
+            (monthSelected)="setMonthAndYear($event, dp)"
+            panelClass="example-month-picker"
+          >
+          </mat-datepicker>
+        </mat-form-field>
+      </form>
+    </mat-card-content>
+    <mat-divider></mat-divider>
+    <mat-card-actions [style]="{ display: 'flex', justifyContent: 'center' }">
+      <button
+        [style]="{ width: '100%' }"
+        mat-stroked-button
+        color="primary"
+        (click)="getCalendarValue()"
+      >
+        Check Income
+      </button>
+    </mat-card-actions>
+
+    <ng-template #monthlyIncomeDialog let-data>
+      <div mat-dialog-title>
+        Total Revenue for
+        <strong>{{ data.month }}{{ ' ' }}{{ data.year }}</strong>
+      </div>
+      <mat-divider></mat-divider>
+      <div mat-dialog-content [style]="{ overflow: 'hidden' }">
+        <div [style]="{ textAlign: 'center' }">
+          <h1 [style]="{ fontSize: '64px' }">
+            <strong [style]="{ fontSize: '48px', fontWeight: 'bolder' }"
+              >PHP {{ ' ' }}</strong
+            ><span *ngIf="monthlyIncome()">{{
+              monthlyIncome() | number : '.2'
+            }}</span>
+            <span *ngIf="!monthlyIncome()">{{ 0 | number : '.2' }}</span>
+          </h1>
+        </div>
+      </div>
+      <mat-divider></mat-divider>
+      <div mat-dialog-actions align="end">
+        <button mat-dialog-close mat-stroked-button>Close</button>
+        <button
+          (click)="checkSoldItems(data.formattedDate, searchButton)"
+          mat-dialog-close
+          mat-stroked-button
+          color="primary"
+        >
+          Check Sold Items
+        </button>
+      </div>
+    </ng-template>
+  </mat-card>
+</div>
