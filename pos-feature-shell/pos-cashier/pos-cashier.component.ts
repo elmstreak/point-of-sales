@@ -1,5 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @nx/enforce-module-boundaries */
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild, ViewEncapsulation, signal } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ViewEncapsulation,
+  forwardRef,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -17,7 +25,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ProductsFacade } from '@org/pos-feature-shell';
+import { ProductsFacade, ProductsTableComponent } from '@org/pos-feature-shell';
 import { map, some } from 'lodash';
 import * as moment from 'moment';
 import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
@@ -45,8 +53,9 @@ import * as uuid from 'uuid';
     MatToolbarModule,
     MatSnackBarModule,
     MatTooltipModule,
+    forwardRef(() => ProductsTableComponent),
   ],
-  encapsulation: ViewEncapsulation.Emulated,
+  encapsulation: ViewEncapsulation.None,
   templateUrl: './pos-cashier.component.html',
   styleUrls: ['./pos-cashier.component.scss'],
 })
@@ -69,7 +78,15 @@ export class PosCashierComponent {
   productList = signal<ProductCartDetails[]>([]);
   valueInTotal = signal<number>(0);
   productError = signal('');
-  displayedColumns: string[] = ['id', 'name', 'price', 'quantity'];
+  cartDisplayedColumns: string[] = ['id', 'name', 'price', 'quantity'];
+  productDisplayedColumns: string[] = [
+    'id',
+    'name',
+    'stock',
+    'price',
+    'date_created',
+  ];
+
   enterProductDialogRef: any;
   products$ = new Observable<any>();
 
@@ -117,7 +134,7 @@ export class PosCashierComponent {
     const payload = {
       id: uuid.v4(),
       items,
-      date: moment(new Date()).format('YYYY-MM-DD'),
+      date_created: moment(new Date()).format('YYYY-MM-DD'),
       amount: Number(this.valueInTotal()),
       cashAmount: Number(cashAmount),
       change: Number(this.changeAmount()),
@@ -127,7 +144,7 @@ export class PosCashierComponent {
       .pipe(
         take(1),
         switchMap((details: any) => {
-          const transactions = [...details?.transactions, payload];
+          const transactions = [...(details?.transactions || []), payload];
           const existingProducts = details?.products;
           const updatedProductDetails = map(items, (item: any) => {
             const filteredProduct = existingProducts
@@ -138,18 +155,6 @@ export class PosCashierComponent {
               stock: filteredProduct.stock - item.quantity,
             };
           });
-
-          // const updatedProductList = map(existingProducts, (product) => {
-          //   const updatedProduct = updatedProductDetails
-          //     ?.filter((details: any) => details?.id === product?.id)
-          //     ?.shift();
-
-          //   if (updatedProduct) {
-          //     return updatedProduct;
-          //   }
-
-          //   return product;
-          // });
 
           const updatedProducts = {
             ...details,

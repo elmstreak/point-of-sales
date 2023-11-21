@@ -110,120 +110,133 @@
   </ng-template>
 
   <div class="products">
-    <mat-card
-      [style]="{
+    <div [style]="{ height: '600px' }">
+      <org-products-table
+        [dataSource]="products$"
+        [displayedColumns]="productDisplayedColumns"
+      />
+    </div>
+    <div class="right-panel">
+      <mat-card
+        [style]="{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'stretch',
         height: '250px',
       }"
-    >
-      <mat-card-header>
-        <mat-card-subtitle>Total Amount</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="total-wrapper">
-          <div>
-            <h1>PHP</h1>
-            <h1 class="total-label">
-              {{ valueInTotal() | number : '.2' }}
-            </h1>
+      >
+        <mat-card-header>
+          <mat-card-subtitle>Total Amount</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="total-wrapper">
+            <div>
+              <h1>PHP</h1>
+              <h1 class="total-label">
+                {{ valueInTotal() | number : '.2' }}
+              </h1>
+            </div>
           </div>
-        </div>
-      </mat-card-content>
-      <mat-divider></mat-divider>
-      <mat-card-actions align="end">
-        <div
-          [style]="{
-            marginTop: '8px',
-            marginBottom: '8px',
-            display: 'flex',
-            justifyContent: 'flex-end'
-          }"
-        >
-          <button
-            [disabled]="!(valueInTotal() > 0)"
-            (click)="checkConfirmTransaction()"
-            class="confirm-transaction-button"
-            color="warn"
-            mat-stroked-button
+        </mat-card-content>
+        <mat-divider></mat-divider>
+        <mat-card-actions>
+          <div
+            [style]="{
+              marginTop: '8px',
+              marginBottom: '8px',
+              display: 'flex',
+              width: '100%',
+              justifyContent: 'center'
+            }"
           >
-            <mat-icon>attach_money</mat-icon>
-            Confirm Transaction
-          </button>
-        </div>
-      </mat-card-actions>
-    </mat-card>
-    <mat-card appearance="outlined" [style]="{ height: '600px' }">
-      <mat-card-header [style]="{ marginBottom: '8px' }">
-        <mat-card-title [style]="{ flexGrow: 1 }">Items</mat-card-title>
-        <div
-          [style]="{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            width: '100%'
-          }"
-        >
-          <button
-            matTooltip="Add Item to Cart"
-            matTooltipPosition="below"
-            (click)="showEnterProductsDialog()"
-            mat-stroked-button
+            <button
+              [disabled]="!(valueInTotal() > 0)"
+              (click)="checkConfirmTransaction()"
+              class="confirm-transaction-button"
+              color="warn"
+              [style]="{ width: '100%' }"
+              mat-stroked-button
+            >
+              <mat-icon>attach_money</mat-icon>
+              Confirm Transaction
+            </button>
+          </div>
+        </mat-card-actions>
+      </mat-card>
+      <mat-card appearance="outlined" [style]="{ height: '600px' }">
+        <mat-card-header [style]="{ marginBottom: '8px' }">
+          <mat-card-title [style]="{ flexGrow: 1 }">Items</mat-card-title>
+          <div
+            [style]="{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              width: '100%'
+            }"
           >
-            <mat-icon>add_shopping_cart</mat-icon> Add Item
-          </button>
-        </div>
-      </mat-card-header>
-      <mat-divider></mat-divider>
-      <mat-card-content>
-        <ng-container *ngIf="productList().length !== 0; else emptyRecord">
-          <div class="table-wrapper">
-            <table mat-table [dataSource]="productList()">
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef>
-                  <h3>ID</h3>
-                </th>
-                <td mat-cell *matCellDef="let element">{{ element.id }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>
-                  <h3>Name</h3>
-                </th>
-                <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="price">
-                <th mat-header-cell *matHeaderCellDef>
-                  <h3>Price</h3>
-                </th>
-                <td mat-cell *matCellDef="let element">
-                  {{ element.price }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="quantity">
-                <th mat-header-cell *matHeaderCellDef>
-                  <h3>Quantity</h3>
-                </th>
-                <td mat-cell *matCellDef="let element">
-                  {{ element.quantity }}
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-            </table>
+            <button
+              matTooltip="Add Item to Cart"
+              matTooltipPosition="below"
+              (click)="showEnterProductsDialog()"
+              mat-stroked-button
+            >
+              <mat-icon>add_shopping_cart</mat-icon> Add Item
+            </button>
           </div>
-        </ng-container>
-        <ng-template #emptyRecord>
-          <div class="table-wrapper" [style]="{ textAlign: 'center' }">
-            <h4 [style]="{ color: 'gray', marginTop: '64px' }">
-              You have no items in cart.
-            </h4>
-          </div>
-        </ng-template>
-      </mat-card-content>
-    </mat-card>
+        </mat-card-header>
+        <mat-divider></mat-divider>
+        <mat-card-content>
+          <ng-container *ngIf="productList().length !== 0; else emptyRecord">
+            <div class="table-wrapper">
+              <table mat-table [dataSource]="productList()">
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef>
+                    <h3>ID</h3>
+                  </th>
+                  <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>
+                    <h3>Name</h3>
+                  </th>
+                  <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="price">
+                  <th mat-header-cell *matHeaderCellDef>
+                    <h3>Price</h3>
+                  </th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.price }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="quantity">
+                  <th mat-header-cell *matHeaderCellDef>
+                    <h3>Quantity</h3>
+                  </th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.quantity }}
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="cartDisplayedColumns"></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: cartDisplayedColumns"
+                ></tr>
+              </table>
+            </div>
+          </ng-container>
+          <ng-template #emptyRecord>
+            <div class="table-wrapper" [style]="{ textAlign: 'center' }">
+              <h4 [style]="{ color: 'gray', marginTop: '64px' }">
+                You have no items in cart.
+              </h4>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
 </div>

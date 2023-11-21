@@ -1,10 +1,4 @@
 import { Route } from '@angular/router';
-import {
-  PosCashierComponent,
-  PosLoginComponent,
-  PosSalesComponent,
-  PosStocksComponent,
-} from '@org/pos-feature-shell';
 
 export const appRoutes: Route[] = [
   {

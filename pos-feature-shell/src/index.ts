@@ -3,7 +3,7 @@ export * from '../pos-cashier/pos-cashier.component';
 export * from '../pos-login/pos-login.component';
 export * from '../pos-product-form/pos-product-form.component';
 export * from '../pos-sales/pos-sales.component';
-export * from '../pos-stocks/pos-stocks.component';
 export * from './lib/pos-data-access/pos-data-access.action';
 export * from './lib/pos-data-access/pos-data-access.reducer';
 export * from './lib/pos-data-access/pos-data-access.facade';
+export * from './lib/products-table/products-table.component';

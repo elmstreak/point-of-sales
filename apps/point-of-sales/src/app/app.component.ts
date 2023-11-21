@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -11,6 +12,7 @@ import {
 } from '@org/pos-feature-shell';
 import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
 import { of, switchMap, take } from 'rxjs';
+import { MOCK_PRODUCTS, TRANSACTION_MOCK } from './app.mock-data';
 
 @Component({
   standalone: true,
@@ -41,13 +43,13 @@ export class AppComponent {
           if (details?.error) {
             this.productsFacade.initializeApp({
               user: {},
-              transactions: [],
-              products: [],
+              transactions: [...TRANSACTION_MOCK],
+              products: this.convertAllToUpperCase(MOCK_PRODUCTS),
             });
             return this.posService.updateJSON({
               user: {},
-              transactions: [],
-              products: [],
+              transactions: [...TRANSACTION_MOCK],
+              products: this.convertAllToUpperCase(MOCK_PRODUCTS),
             });
           } else {
             this.productsFacade.initializeApp({ ...details.data });
@@ -55,8 +57,17 @@ export class AppComponent {
           }
         })
       )
-      .subscribe({
-        next: (details: any) => {},
+      .subscribe();
+  }
+
+  convertAllToUpperCase(products: any) {
+    return products.map((productDetails: any) => {
+      Object.keys(productDetails)?.forEach((productKey: any) => {
+        if (typeof productDetails[productKey] === 'string') {
+          productDetails[productKey] = productDetails[productKey].toUpperCase();
+        }
       });
+      return productDetails;
+    });
   }
 }

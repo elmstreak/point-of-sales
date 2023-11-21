@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @nx/enforce-module-boundaries */
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { Component, ViewChild, signal } from '@angular/core';
+import { Component, ViewChild, forwardRef, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -10,24 +12,24 @@ import {
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
-import { ProductsFacade, addProduct } from '@org/pos-feature-shell';
-import { each, map, some, update } from 'lodash';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ProductsFacade, ProductsTableComponent } from '@org/pos-feature-shell';
+import { each, map, some } from 'lodash';
+import * as moment from 'moment';
 import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
-import { combineLatest, filter, of, switchMap, take } from 'rxjs';
+import { ProductAdminStore } from 'pos-feature-shell/src/lib/pos-data-access/pos-data-access.models';
+import { of, switchMap, take } from 'rxjs';
 import {
   PRODUCT_DELETE_FORM_CONTROLS,
   PRODUCT_FORM_CONTROLS,
   PRODUCT_UPDATE_STOCK_FORM_CONTROLS,
 } from './form-controls.config';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
-import { ProductAdminStore } from 'pos-feature-shell/src/lib/pos-data-access/pos-data-access.models';
-import * as moment from 'moment';
 
 @Component({
   selector: 'org-pos-product-form',
@@ -65,7 +67,7 @@ export class PosProductFormComponent {
   deleteFormControl = new FormControl('', [Validators.required]);
   existingProductList: any = [];
 
-  products$: any;
+  products$!: any;
   displayedColumns: string[] = ['id', 'name', 'stock', 'price', 'date_created'];
   dialogSize = { width: '350px', height: 'auto' };
 

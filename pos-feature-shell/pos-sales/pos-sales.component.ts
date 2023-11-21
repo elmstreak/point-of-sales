@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -36,18 +37,18 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
-import { ProductsFacade } from '@org/pos-feature-shell';
 import { each, reduce } from 'lodash';
 import * as moment from 'moment';
 import { Observable, of, switchMap, take } from 'rxjs';
+import { ProductsFacade } from '@org/pos-feature-shell';
 import { MY_FORMATS, SALES_FILTER_FORM_CONTROLS } from './form-controls.config';
-import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'org-pos-sales',
@@ -96,7 +97,7 @@ export class PosSalesComponent {
   transactions$ = new Observable<any>();
   filterTypeValue: WritableSignal<string> = signal('');
   displayedColumns: string[] = [
-    'date',
+    'date_created',
     'amount',
     'cashAmount',
     'change',
