@@ -25,8 +25,8 @@
       </mat-card-header>
       <mat-card-content>
         <mat-divider></mat-divider>
-        <div class="table-wrapper">
-          <table [dataSource]="dataSource" mat-table class="table">
+        <div class="table-wrapper-left-panel">
+          <table class="products-table" [dataSource]="dataSource" mat-table>
             <ng-container matColumnDef="id">
               <th mat-header-cell *matHeaderCellDef>
                 <strong>ID</strong>

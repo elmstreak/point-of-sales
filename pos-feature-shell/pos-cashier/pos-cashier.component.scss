@@ -11,6 +11,8 @@
 .cashier-wrapper {
   display: flex;
 
+  overflow: hidden;
+
   .product-search-form {
     flex-grow: 0.3;
   }
@@ -62,6 +64,14 @@
 
   .table-wrapper {
     max-height: 400px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .table-wrapper-left-panel {
+    max-height: 800px;
     overflow-y: scroll;
     overflow-x: hidden;
     padding-left: 8px;

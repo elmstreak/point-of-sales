@@ -1,10 +1,14 @@
+.container {
+  overflow: hidden;
+}
+
 .products-wrapper {
   display: flex;
 
   .products-list {
     mat-card {
       margin-top: 8px;
-      max-height: 800px;
+      max-height: 1000px;
       overflow-y: scroll;
     }
     flex-grow: 1;

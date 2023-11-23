@@ -138,6 +138,7 @@ export class PosSalesComponent {
     this.dialog.open(this.itemsDialog, {
       width: '500px',
       data: { items: of(items) },
+      autoFocus: false,
     });
   }
 
@@ -153,6 +154,17 @@ export class PosSalesComponent {
     }, 500);
   }
 
+  getTotalFromItems(items: any) {
+    const amount = reduce(
+      items,
+      (total: any, item: any) => {
+        return total + item.price * item.quantity;
+      },
+      0
+    );
+    return amount;
+  }
+
   handleSearchFilter() {
     const formValue: any = this.searchFormGroup.value;
     const isFormValid = this.searchFormGroup.valid;
@@ -164,7 +176,9 @@ export class PosSalesComponent {
             switchMap((details: any) => {
               return of(
                 details.filter((transaction: any) => {
-                  return transaction.date.includes(formValue.filter_value);
+                  return transaction.date_created.includes(
+                    formValue.filter_value
+                  );
                 })
               );
             })
@@ -228,7 +242,7 @@ export class PosSalesComponent {
       .pipe(take(1))
       .subscribe((details: any) => {
         const transactionsOnDateChosen = details.filter((details: any) =>
-          details.date.includes(formattedDate)
+          details?.date_created.includes(formattedDate)
         );
         const monthlyIncome = reduce(
           transactionsOnDateChosen,

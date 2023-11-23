@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import { Component, Input, WritableSignal, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { Observable, of, switchMap } from 'rxjs';
 import { ProductsFacade } from '../pos-data-access/pos-data-access.facade';
-import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'org-products-table',
@@ -29,32 +29,36 @@ import { MatDividerModule } from '@angular/material/divider';
   templateUrl: './products-table.component.html',
   styleUrls: ['./products-table.component.scss'],
 })
-export class ProductsTableComponent {
+export class ProductsTableComponent implements OnInit {
   @Input() dataSource!: Observable<any>;
   @Input() displayedColumns: string[] = [];
 
-  dataSourceCopy$: WritableSignal<any> = signal(of([]));
+  dataSourceCopy: any;
   filterFormControl = new FormControl('');
 
-  constructor() {
-    this.dataSourceCopy$.set(this.dataSource);
-
+  constructor(
+    private changeDetector: ChangeDetectorRef,
+    private productFacade: ProductsFacade
+  ) {
+    this.dataSourceCopy = this.dataSource;
     this.filterFormControl.valueChanges.subscribe((productId: any) => {
-      console.log(productId);
       if (productId) {
-        this.dataSource = this.dataSource.pipe(
-          switchMap((details: any) => {
-            const filteredData = details.filter(
-              (data: any) => data.id === productId.toUpperCase()
-            );
-            console.log(filteredData);
-            return of(filteredData);
+        this.dataSource = this.productFacade.products$.pipe(
+          switchMap((products: any) => {
+            const filteredProducts = products.filter((details: any) => {
+              return details?.id?.includes(productId);
+            });
+            return of(filteredProducts);
           })
         );
       } else {
-        // this.dataSource = this.dataSourceCopy$;
+        this.dataSource = this.productFacade.products$;
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.changeDetector.detectChanges();
   }
 
   resetFilter() {

@@ -31,6 +31,7 @@ import * as moment from 'moment';
 import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
 import {
   Product,
+  ProductAdminStore,
   ProductCartDetails,
 } from 'pos-feature-shell/src/lib/pos-data-access/pos-data-access.models';
 import { Observable, of, switchMap, take } from 'rxjs';
@@ -132,7 +133,7 @@ export class PosCashierComponent {
     const cashAmount = this.cashFormGroup.value?.['cash'];
 
     const payload = {
-      id: uuid.v4(),
+      id: uuid.v4().toUpperCase(),
       items,
       date_created: moment(new Date()).format('YYYY-MM-DD'),
       amount: Number(this.valueInTotal()),
@@ -143,30 +144,19 @@ export class PosCashierComponent {
     this.productsFacade.store$
       .pipe(
         take(1),
-        switchMap((details: any) => {
-          const transactions = [...(details?.transactions || []), payload];
-          const existingProducts = details?.products;
-          const updatedProductDetails = map(items, (item: any) => {
-            const filteredProduct = existingProducts
-              ?.filter((product: any) => product?.id === item.id)
-              .shift();
-            return {
-              ...filteredProduct,
-              stock: filteredProduct.stock - item.quantity,
-            };
-          });
-
+        switchMap((store: any) => {
+          const transactions = [...(store?.transactions || []), payload];
           const updatedProducts = {
-            ...details,
-            products: updatedProductDetails,
+            ...store,
+            products: this.updateProductStocks(store, items),
             transactions: transactions,
           };
 
           this.productsFacade.updateProductStore(updatedProducts);
           return of(updatedProducts);
         }),
-        switchMap((details) => {
-          return this.posService.updateJSON(details);
+        switchMap((updatedStore: ProductAdminStore) => {
+          return this.posService.updateJSON(updatedStore);
         })
       )
       .subscribe((details: any) => {
@@ -177,6 +167,21 @@ export class PosCashierComponent {
       });
 
     this.resetPageDetails();
+  }
+
+  updateProductStocks(store: any, items: any) {
+    const existingProducts = store?.products;
+    const updatedProductDetails = map(items, (item: any) => {
+      const filteredProduct = existingProducts
+        ?.filter((product: any) => product?.id === item.id)
+        .shift();
+      return {
+        ...filteredProduct,
+        stock: filteredProduct.stock - item.quantity,
+      };
+    });
+
+    return [...existingProducts, updatedProductDetails];
   }
 
   checkProductExistence() {}

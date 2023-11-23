@@ -110,7 +110,7 @@
   </ng-template>
 
   <div class="products">
-    <div [style]="{ height: '600px' }">
+    <div>
       <org-products-table
         [dataSource]="products$"
         [displayedColumns]="productDisplayedColumns"
@@ -163,7 +163,7 @@
           </div>
         </mat-card-actions>
       </mat-card>
-      <mat-card appearance="outlined" [style]="{ height: '600px' }">
+      <mat-card appearance="outlined" [style]="{ height: '700px' }">
         <mat-card-header [style]="{ marginBottom: '8px' }">
           <mat-card-title [style]="{ flexGrow: 1 }">Items</mat-card-title>
           <div

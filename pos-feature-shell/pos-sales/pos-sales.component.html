@@ -55,7 +55,7 @@
   </mat-toolbar>
 </div>
 <div class="sales-wrapper">
-  <mat-card [style]="{ height: '650px', overflowY: 'scroll' }">
+  <mat-card [style]="{ height: '900px', overflowY: 'scroll' }">
     <mat-card-content>
       <div class="table-wrapper">
         <table [dataSource]="transactions$" mat-table class="table">
@@ -152,6 +152,14 @@
                       *matRowDef="let row; columns: salesItemColumns"
                     ></tr>
                   </table>
+                  <mat-divider></mat-divider>
+                  <h2 [style]="{ textAlign: 'center' }">
+                    PHP
+                    {{ getTotalFromItems(data.items | async) | number : '.2' }}
+                  </h2>
+                </div>
+                <div mat-dialog-actions>
+                  <button mat-dialog-close mat-stroked-button>Close</button>
                 </div>
               </ng-template>
             </td>

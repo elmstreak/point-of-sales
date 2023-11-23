@@ -13,6 +13,7 @@ import {
 import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
 import { of, switchMap, take } from 'rxjs';
 import { MOCK_PRODUCTS, TRANSACTION_MOCK } from './app.mock-data';
+import { cloneDeep } from 'lodash';
 
 @Component({
   standalone: true,
@@ -57,17 +58,20 @@ export class AppComponent {
           }
         })
       )
-      .subscribe();
+      .subscribe((response: any) => console.log(response));
   }
 
   convertAllToUpperCase(products: any) {
     return products.map((productDetails: any) => {
-      Object.keys(productDetails)?.forEach((productKey: any) => {
-        if (typeof productDetails[productKey] === 'string') {
-          productDetails[productKey] = productDetails[productKey].toUpperCase();
+      const details = cloneDeep(productDetails);
+      Object.keys(details)?.forEach((productKey: any) => {
+        const value = details[productKey];
+        if (typeof value === 'string') {
+          details[productKey] = value.toUpperCase();
         }
       });
-      return productDetails;
+      console.log(details);
+      return details;
     });
   }
 }

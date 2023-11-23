@@ -1,5 +1,5 @@
 export interface ProductAdminStore {
-  user: {
+  user?: {
     credentials: {
       username: string;
       password: string;
