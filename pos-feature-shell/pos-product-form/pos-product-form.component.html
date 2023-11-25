@@ -35,6 +35,17 @@
           <mat-icon>delete</mat-icon>
           Delete Product
         </button>
+        <button
+          mat-stroked-button
+          matTooltip="Delete a product"
+          (click)="exportAsPDF()"
+          matTooltipPosition="below"
+          class="toolbar-button"
+          color="primary"
+        >
+          <mat-icon>cloud_download</mat-icon>
+          Export Data as PDF
+        </button>
       </div>
       <span class="spacer"></span>
       <mat-form-field class="search-field" appearance="outline">

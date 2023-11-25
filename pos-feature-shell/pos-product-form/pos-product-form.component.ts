@@ -2,7 +2,7 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
-import { Component, ViewChild, forwardRef, signal } from '@angular/core';
+import { Component, ViewChild, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -19,7 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ProductsFacade, ProductsTableComponent } from '@org/pos-feature-shell';
+import { ProductsFacade } from '@org/pos-feature-shell';
 import { each, map, some } from 'lodash';
 import * as moment from 'moment';
 import { PosDataAccessService } from 'pos-feature-shell/src/lib/pos-data-access.service';
@@ -30,6 +30,8 @@ import {
   PRODUCT_FORM_CONTROLS,
   PRODUCT_UPDATE_STOCK_FORM_CONTROLS,
 } from './form-controls.config';
+import jspdf from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'org-pos-product-form',
@@ -252,6 +254,24 @@ export class PosProductFormComponent {
       .subscribe((data: any) => {
         console.log(data);
       });
+  }
+
+  exportAsPDF() {
+    const doc = new jspdf();
+
+    this.productsFacade.products$.pipe(take(1)).subscribe((details: any) => {
+      const keys = Object.keys(details[0]).map((key: any) => key);
+      const values = details.map((product: any) => {
+        return Object.values(product).map((value: any) => value);
+      });
+
+      autoTable(doc, {
+        head: [keys],
+        body: [...values],
+      });
+
+      doc.save('transactions.pdf');
+    });
   }
 
   buildControls() {

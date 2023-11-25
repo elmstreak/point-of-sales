@@ -1,6 +1,6 @@
 <div>
   <mat-toolbar [style]="{ height: '80px' }">
-    <form [formGroup]="searchFormGroup" [style]="{ flexGrow: 1 }">
+    <form [formGroup]="searchFormGroup">
       @for (control of formControls; track control) {
       <mat-form-field
         *ngIf="control.type === 'text'"

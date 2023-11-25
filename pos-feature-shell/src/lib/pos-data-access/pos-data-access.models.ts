@@ -28,5 +28,7 @@ export interface Transaction {
   id: string;
   items: ProductCartDetails[];
   date_created: string; // YYYY-MM-DD
-  amount: 2637.800000000001;
+  amount: number;
+  cashAmount: number;
+  change: number;
 }

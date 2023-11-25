@@ -49,6 +49,8 @@ import * as moment from 'moment';
 import { Observable, of, switchMap, take } from 'rxjs';
 import { ProductsFacade } from '@org/pos-feature-shell';
 import { MY_FORMATS, SALES_FILTER_FORM_CONTROLS } from './form-controls.config';
+import jspdf from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'org-pos-sales',

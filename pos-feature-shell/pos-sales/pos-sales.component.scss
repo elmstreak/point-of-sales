@@ -4,6 +4,14 @@ mat-row {
   border-bottom-width: 10px;
 }
 
+.toolbar-actions {
+  width: 100%;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
 .sales-wrapper {
   display: grid;
   grid-template-columns: 10fr 2fr;

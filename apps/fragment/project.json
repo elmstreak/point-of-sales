@@ -1,0 +1,57 @@
+{
+  "name": "fragment",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/fragment/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/fragment",
+        "main": "apps/fragment/src/main.ts",
+        "tsConfig": "apps/fragment/tsconfig.app.json",
+        "assets": ["apps/fragment/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/fragment/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "fragment:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "fragment:build:development"
+        },
+        "production": {
+          "buildTarget": "fragment:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/fragment/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/fragment/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
