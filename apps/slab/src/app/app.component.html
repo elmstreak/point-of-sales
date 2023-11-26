@@ -1,0 +1,21 @@
+<div class="app-container" *ngIf="!isHideApplication">
+  <mat-toolbar>
+    <span class="logo-name">slab</span>
+    <span class="spacer"></span>
+    <button
+      mat-icon-button
+      class="example-icon favorite-icon"
+      aria-label="Example icon-button with heart icon"
+    >
+      <mat-icon>person</mat-icon>
+    </button>
+    <button
+      mat-icon-button
+      class="example-icon"
+      aria-label="Example icon-button with share icon"
+    >
+      <mat-icon>shopping_cart</mat-icon>
+    </button>
+  </mat-toolbar>
+  <router-outlet></router-outlet>
+</div>

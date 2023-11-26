@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@org/pos-feature-shell": ["pos-feature-shell/src/index.ts"]
+      "@org/pos-feature-shell": ["pos-feature-shell/src/index.ts"],
+      "@org/slab-feature-shell": ["slab-feature-shell/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

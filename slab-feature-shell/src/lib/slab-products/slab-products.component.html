@@ -1,0 +1,23 @@
+<div class="product-container" *ngIf="products$ | async as products">
+  <div class="search-container">
+    <mat-form-field appearance="outline">
+      <input placeholder="Search product" [formControl]="searchProductControl" matInput type="text" />
+      <button mat-icon-button matSuffix>
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+  <div class="products-wrapper">
+    <ng-container *ngFor="let product of products">
+      <mat-card class="example-card">
+        <mat-card-content>
+          <div>
+            <img class="product-image" src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu" />
+            <p [style]="{ margin: '0px' }">{{ product.product_name }}</p>
+            <strong class="price-label"> <span>PHP</span> {{ product.product_sell_price | number : '.2' }} </strong>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </ng-container>
+  </div>
+</div>

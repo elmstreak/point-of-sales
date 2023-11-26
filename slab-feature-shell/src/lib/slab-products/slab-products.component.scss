@@ -1,0 +1,33 @@
+.product-container {
+  display: flex;
+  // flex-wrap: wrap;
+  // flex-grow: 0.5;
+  flex-direction: column;
+  margin-top: 4px;
+  font-family: 'Oswald', sans-serif;
+
+  ::ng-deep mat-card {
+    margin-bottom: 8px;
+    margin: 4px;
+    width: 47%;
+  }
+
+  .search-container {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+::ng-deep mat-form-field {
+  width: 100% !important;
+}
+
+.product-image {
+  width: 100%;
+}
+
+.products-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}

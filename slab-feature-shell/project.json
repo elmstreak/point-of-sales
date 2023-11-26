@@ -1,0 +1,27 @@
+{
+  "name": "slab-feature-shell",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "slab-feature-shell/src",
+  "prefix": "org",
+  "tags": [],
+  "projectType": "library",
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "slab-feature-shell/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "slab-feature-shell/**/*.ts",
+          "slab-feature-shell/**/*.html"
+        ]
+      }
+    }
+  }
+}

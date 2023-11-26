@@ -6,12 +6,15 @@
 import express from 'express';
 import * as path from 'path';
 import * as db from './db-connect';
+import cors from 'cors';
 
 const app = express();
 
+app.use(cors());
+
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-app.get('/', async (req, res) => {
+app.get('/products', async (req, res) => {
   try {
     const result = await db.getProducts();
     res.json(result['rows']);
@@ -19,10 +22,6 @@ app.get('/', async (req, res) => {
     console.error(err);
     res.status(500).send('Internal Server Error');
   }
-});
-
-app.get('/api', (req, res) => {
-  res.send({ message: 'Welcome to fragment!' });
 });
 
 const port = process.env.PORT || 3333;

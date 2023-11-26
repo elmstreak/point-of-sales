@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "delete": "rm db.json"
+    "delete": "rm db.json",
+    "build-slab-production": "nx run slab:build --configuration=production"
   },
   "private": true,
   "dependencies": {
